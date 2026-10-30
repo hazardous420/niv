@@ -1,31 +1,36 @@
 import pygame
 import os
-from assets import SPRITES
 import level_parser
+
 from classes import Player, Tile
+from constants import BACKGROUND_COLOR
+from assets import SPRITES
+
+from asset_manager import AssetManager
+from sprite import Sprite
+from nassets import sprites, load_assetmanager
 
 #pygame setup
 pygame.init()
-screen = pygame.display.set_mode((640, 800))
-clock = pygame.time.Clock()
-running = True
+screen: pygame.Surface = pygame.display.set_mode((640, 800))
+clock: pygame.time.Clock = pygame.time.Clock()
+running: bool = True
 
-BACKGROUND_COLOR = (0, 0, 0)
-
-grid_data = level_parser.load_grid_from_file(os.path.join("levels", "Ruins.txt"))
+grid_data: list = level_parser.load_grid_from_file(os.path.join("levels", "Ruins.txt"))
 all_sprites, wall_sprites = level_parser.create_tile_sprites(grid_data)
 
 player_frames = {
-    'up':    [pygame.image.load(os.path.join("images", "characters", f"PlayerWalkUp{i+1}.png")).convert_alpha() for i in range(4)],#bru i forgot to end this one with 0 and 2 lazy 2 change
-    'down':  [pygame.image.load(os.path.join("images", "characters", f"PlayerWalkDown{i}.png")).convert_alpha() for i in range(4)],
-    'left':  [pygame.image.load(os.path.join("images", "characters", f"PlayerWalkLeft{i}.png")).convert_alpha() for i in range(4)],
-    'right': [pygame.image.load(os.path.join("images", "characters", f"PlayerWalkRight{i+1}.png")).convert_alpha() for i in range(4)],
+    'up':    [sprites[f"PlayerWalkUp{i+1}"].texture for i in range(4)],
+    'down':  [sprites[f"PlayerWalkDown{i}"].texture for i in range(4)],
+    'left':  [sprites[f"PlayerWalkLeft{i}"].texture for i in range(4)],
+    'right': [sprites[f"PlayerWalkRight{i+1}"].texture for i in range(4)],
 
-    'idle_down':  [pygame.image.load(os.path.join("images", "characters", f"PlayerIdle1.png")).convert_alpha() for i in range(1)],
-    'idle_up':    [pygame.image.load(os.path.join("images", "characters", f"PlayerIdle2.png")).convert_alpha() for i in range(1)],
-    'idle_left':  [pygame.image.load(os.path.join("images", "characters", f"PlayerIdle4.png")).convert_alpha() for i in range(1)],
-    'idle_right': [pygame.image.load(os.path.join("images", "characters", f"PlayerIdle3.png")).convert_alpha() for i in range(1)],
+    'idle_down':  [sprites["PlayerIdle1"].texture],
+    'idle_up':    [sprites["PlayerIdle2"].texture],
+    'idle_left':  [sprites["PlayerIdle4"].texture],
+    'idle_right': [sprites["PlayerIdle3"].texture],
 }
+
 player_group = pygame.sprite.Group()
 player = Player(100, 100, player_frames, player_group)
 
