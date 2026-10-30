@@ -1,0 +1,1 @@
+DEFAULT_SPRITE_SCALE : tuple[float, float] = (32, 32)
