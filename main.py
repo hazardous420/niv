@@ -16,7 +16,7 @@ grid_data = level_parser.load_grid_from_file(os.path.join("levels", "level1.txt"
 all_sprites, wall_sprites = level_parser.create_tile_sprites(grid_data)
 
 player_frames = {
-    'up':    [pygame.image.load(os.path.join("images", "characters", f"PlayerWalkUp{i+1}.png")).convert_alpha() for i in range(4)],
+    'up':    [pygame.image.load(os.path.join("images", "characters", f"PlayerWalkUp{i+1}.png")).convert_alpha() for i in range(4)],#bru i forgot to end this one with 0 and 2 lazy 2 change
     'down':  [pygame.image.load(os.path.join("images", "characters", f"PlayerWalkDown{i}.png")).convert_alpha() for i in range(4)],
     'left':  [pygame.image.load(os.path.join("images", "characters", f"PlayerIdle1.png")).convert_alpha() for i in range(4)],
     'right': [pygame.image.load(os.path.join("images", "characters", f"PlayerIdle1.png")).convert_alpha() for i in range(4)]
