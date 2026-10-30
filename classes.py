@@ -24,7 +24,7 @@ class Player(pygame.sprite.Sprite):
 
         self.image = pygame.transform.scale(self.animations[self.direction][self.frame_index], assets.SCALE)
         self.rect = self.image.get_rect(topleft=(x, y))
-        self.speed = 1
+        self.speed = 2
 
     def handle_input(self, wall_sprites):
         keys = pygame.key.get_pressed()
@@ -56,15 +56,17 @@ class Player(pygame.sprite.Sprite):
                 self.rect.x += dx
                 self.rect.y += dy
 
-    def update_animation(self):
-        if self.is_moving:
-            self.frame_index += self.animation_speed
-            if self.frame_index >= len(self.animations[self.direction]):
-                self.frame_index = 0
-        else:
+    def update_animation(self): #idle based on dir
+        anim_key = self.direction if self.is_moving else f"idle_{self.direction}"
+
+        self.frame_index += self.animation_speed
+        if self.frame_index >= len(self.animations[anim_key]):
             self.frame_index = 0
+
+        current_frame = self.animations[anim_key][int(self.frame_index)]
+        self.image = pygame.transform.scale(current_frame, assets.SCALE)
             
-        current_frame = self.animations[self.direction][int(self.frame_index)]
+        current_frame = self.animations[anim_key][int(self.frame_index)]
         self.image = pygame.transform.scale(current_frame, assets.SCALE)
 
     def update(self, wall_sprites):
