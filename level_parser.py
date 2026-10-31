@@ -15,6 +15,8 @@ def create_tile_sprites(grid):
     IMAGE_MAP = {
         0: pygame.transform.scale(pygame.image.load("images/tiles/Floor.png").convert(), (32, 32)),
         1: pygame.transform.scale(pygame.image.load("images/tiles/Wall.png").convert_alpha(), (32, 32)),
+        2: pygame.transform.scale(pygame.image.load("images/tiles/BrickWall.png").convert_alpha(), (32, 32)),
+        3: pygame.transform.scale(pygame.image.load("images/tiles/WoodPlanks.png").convert_alpha(), (32, 32)),
     }
 
     all_sprites = pygame.sprite.Group()
@@ -26,7 +28,7 @@ def create_tile_sprites(grid):
             tile = Tile(tile_type, col_idx, row_idx, image)
             all_sprites.add(tile)
 
-            if tile_type == 1:
+            if tile_type == 1 or tile_type == 2:
                 wall_sprites.add(tile)
 
     return all_sprites, wall_sprites
