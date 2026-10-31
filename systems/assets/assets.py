@@ -1,5 +1,6 @@
-from sprite import Sprite
-from asset_manager import AssetManager
+import pygame
+from systems.assets.sprite import Sprite
+from systems.assets.asset_manager import AssetManager
 
 # Global list of all sprites
 sprites: dict[str, Sprite] = {
@@ -36,6 +37,9 @@ sprites: dict[str, Sprite] = {
     # Tiles
     "Wall": Sprite("images/tiles/Wall.png", "Wall"),
     "Floor": Sprite("images/tiles/Floor.png", "Floor"),
+
+    "BrickWall": Sprite("images/tiles/BrickWall.png", "BrickWall"),
+    "WoodPlanks": Sprite("images/tiles/WoodPlanks.png", "WoodPlanks"),
 }
 
 def load_assetmanager(assetmanager: AssetManager) -> None:

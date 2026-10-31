@@ -1,0 +1,9 @@
+ADDING A NEW TILE:
+
+    1. go into systems/assets/assets.py
+    2. add file path to sprites:
+        e.g.    "Wall": Sprite("images/tiles/Wall.png", "Wall"),
+                "Floor": Sprite("images/tiles/Floor.png", "Floor"),
+
+    3. go into systems/world/level_parser.py
+    4. add tile to IMAGE_MAP like the rest

@@ -1,5 +1,5 @@
 import pygame
-from sprite import Sprite
+from systems.assets.sprite import Sprite
 
 class AssetManager:
     def __init__(self):
