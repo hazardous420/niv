@@ -1,5 +1,6 @@
 import pygame
-import assets
+import systems.assets.assets as assets
+from systems.globals.constants import DEFAULT_SPRITE_SCALE
 import enum
 import random
 
@@ -19,7 +20,7 @@ class Tile(pygame.sprite.Sprite):
             angle = Rotation.NONE.value
 
         self.image = pygame.transform.rotate(image, angle)
-        self.rect = self.image.get_rect(topleft=(x * assets.SCALE[0], y * assets.SCALE[1]))
+        self.rect = self.image.get_rect(topleft=(x * DEFAULT_SPRITE_SCALE[0], y * DEFAULT_SPRITE_SCALE[1]))
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, sprite_sheet_dict, *groups):
@@ -32,7 +33,7 @@ class Player(pygame.sprite.Sprite):
         
         self.animation_speed = 0.15 
 
-        self.image = pygame.transform.scale(self.animations[self.direction][self.frame_index], assets.SCALE)
+        self.image = pygame.transform.scale(self.animations[self.direction][self.frame_index], DEFAULT_SPRITE_SCALE)
         self.rect = self.image.get_rect(topleft=(x, y))
         self.speed = 2
 
@@ -79,10 +80,10 @@ class Player(pygame.sprite.Sprite):
             self.frame_index = 0
 
         current_frame = self.animations[anim_key][int(self.frame_index)]
-        self.image = pygame.transform.scale(current_frame, assets.SCALE)
+        self.image = pygame.transform.scale(current_frame, DEFAULT_SPRITE_SCALE)
             
         current_frame = self.animations[anim_key][int(self.frame_index)]
-        self.image = pygame.transform.scale(current_frame, assets.SCALE)
+        self.image = pygame.transform.scale(current_frame, DEFAULT_SPRITE_SCALE)
 
     def update(self, wall_sprites):
         self.handle_input(wall_sprites)

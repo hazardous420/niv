@@ -1,22 +1,23 @@
+## PYGAME
 import pygame
+pygame.init()
+screen: pygame.Surface = pygame.display.set_mode((1920,1080), pygame.FULLSCREEN)
+
+## STD
 import os
-import level_parser
 from enum import Enum
 
-from classes import Player, Tile
-from constants import BACKGROUND_COLOR
-
-from asset_manager import AssetManager
-from sprite import Sprite
-from nassets import sprites, load_assetmanager
-
-#pygame setup
-pygame.init()
+## SELF
+import systems.world.level_parser as level_parser
+from systems.entity.classes import Player, Tile
+from systems.globals.constants import BACKGROUND_COLOR
+from systems.assets.asset_manager import AssetManager
+from systems.assets.sprite import Sprite
+from systems.assets.assets import sprites, load_assetmanager
 
 pygame.font.init()
 hud_font = pygame.font.Font("assets/fonts/alagard.ttf", 30)
 
-screen: pygame.Surface = pygame.display.set_mode((1920,1080), pygame.FULLSCREEN)
 clock: pygame.time.Clock = pygame.time.Clock()
 running: bool = True
 

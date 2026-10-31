@@ -1,5 +1,6 @@
 import pygame
-from classes import Tile
+from systems.entity.classes import Tile
+from systems.assets.assets import sprites
 
 def load_grid_from_file(filepath):
     grid = []
@@ -13,12 +14,13 @@ def load_grid_from_file(filepath):
 
 def create_tile_sprites(grid):
     IMAGE_MAP = {
-        0: pygame.transform.scale(pygame.image.load("images/tiles/Floor.png").convert(), (32, 32)),
-        1: pygame.transform.scale(pygame.image.load("images/tiles/Wall.png").convert_alpha(), (32, 32)),
-        2: pygame.transform.scale(pygame.image.load("images/tiles/BrickWall.png").convert_alpha(), (32, 32)),
-        3: pygame.transform.scale(pygame.image.load("images/tiles/WoodPlanks.png").convert_alpha(), (32, 32)),
+        0: pygame.transform.scale(sprites["Floor"].texture, (32, 32)),
+        1: pygame.transform.scale(sprites["Wall"].texture, (32, 32)),
+        2: pygame.transform.scale(sprites["BrickWall"].texture, (32, 32)),
+        3: pygame.transform.scale(sprites["WoodPlanks"].texture, (32, 32)),
     }
 
+    
     all_sprites = pygame.sprite.Group()
     wall_sprites = pygame.sprite.Group()
     for row_idx, row in enumerate(grid):

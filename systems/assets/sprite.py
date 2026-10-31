@@ -1,5 +1,5 @@
 import pygame
-from constants import DEFAULT_SPRITE_SCALE
+from systems.globals.constants import DEFAULT_SPRITE_SCALE
 
 class Sprite:
     def __init__(self, path: str = "", sprite_name: str = "", initial_scale: float = 1.0):
