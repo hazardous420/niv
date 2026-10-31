@@ -1,13 +1,23 @@
 import pygame
 import assets
+import enum
 import random
+
+class Rotation(enum.Enum):
+    NONE = 0
+    RANDOM = 1
 
 class Tile(pygame.sprite.Sprite):
     def __init__(self, tile_type, x, y, image):
         super().__init__()
         self.tile_type = tile_type
+        rotation = Rotation.NONE if tile_type == 2 or tile_type == 3 else Rotation.RANDOM
+  
+        if rotation == Rotation.RANDOM:
+            angle = random.choice([0, 90, 180, 270])
+        else:
+            angle = Rotation.NONE.value
 
-        angle = random.choice([0, 90, 180, 270])
         self.image = pygame.transform.rotate(image, angle)
         self.rect = self.image.get_rect(topleft=(x * assets.SCALE[0], y * assets.SCALE[1]))
 
@@ -30,7 +40,12 @@ class Player(pygame.sprite.Sprite):
         keys = pygame.key.get_pressed()
         self.is_moving = False
         dx, dy = 0, 0
-
+        if keys[pygame.K_LSHIFT]:
+            self.speed = 3
+            self.animation_speed = 0.25
+        else:
+            self.speed = 2
+            self.animation_speed = 0.15
         if keys[pygame.K_LEFT]:
             dx = -self.speed
             self.direction = 'left'

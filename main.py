@@ -1,10 +1,10 @@
 import pygame
 import os
 import level_parser
+from enum import Enum
 
 from classes import Player, Tile
 from constants import BACKGROUND_COLOR
-from assets import SPRITES
 
 from asset_manager import AssetManager
 from sprite import Sprite
@@ -12,11 +12,46 @@ from nassets import sprites, load_assetmanager
 
 #pygame setup
 pygame.init()
-screen: pygame.Surface = pygame.display.set_mode((640, 800))
+
+pygame.font.init()
+hud_font = pygame.font.Font("assets/fonts/alagard.ttf", 30)
+
+screen: pygame.Surface = pygame.display.set_mode((1920,1080), pygame.FULLSCREEN)
 clock: pygame.time.Clock = pygame.time.Clock()
 running: bool = True
 
-grid_data: list = level_parser.load_grid_from_file(os.path.join("levels", "Ruins.txt"))
+class AmbientLight(Enum):
+    DAY = (255, 255, 255)
+    OVERCAST = (180, 180, 190)
+    DUSK = (100, 70, 70)
+    NIGHT = (30, 30, 50)
+    PITCH_BLACK = (5, 5, 5)
+
+def create_light_surf(radius, color=(255, 255, 255)):
+    light_surf = pygame.Surface((radius * 2, radius * 2))
+    light_surf.fill((0, 0, 0)) 
+    for i in range(radius, 0, -1):
+        distance_ratio = i / radius
+        intensity = (1 - distance_ratio) ** 1.5
+        
+        r = int(color[0] * intensity)
+        g = int(color[1] * intensity)
+        b = int(color[2] * intensity)
+        
+        pygame.draw.circle(light_surf, (r, g, b), (radius, radius), i)
+        
+    return light_surf
+
+#light vars
+current_time = AmbientLight.NIGHT
+light_mask = pygame.Surface((1920, 1080))
+player_light_radius = 200
+player_light_surf = create_light_surf(player_light_radius)
+
+asset_manager: AssetManager = AssetManager()
+load_assetmanager(asset_manager)
+
+grid_data: list = level_parser.load_grid_from_file(os.path.join("levels", "CityCenter.txt"))
 all_sprites, wall_sprites = level_parser.create_tile_sprites(grid_data)
 
 player_frames = {
@@ -32,20 +67,37 @@ player_frames = {
 }
 
 player_group = pygame.sprite.Group()
-player = Player(100, 100, player_frames, player_group)
+player = Player(200,200, player_frames, player_group)
+
+player_health = 100
+player_sanity = 85
+current_location = "City Center"
 
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-    hud_rect = pygame.Rect(0, 640, 640, 160)
-    pygame.draw.rect(screen, (30, 30, 30), hud_rect)
-
-    player_group.update(wall_sprites)
     screen.fill(BACKGROUND_COLOR)
     all_sprites.draw(screen)
     player_group.draw(screen)
+
+    light_mask.fill(current_time.value)
+    light_x = player.rect.centerx - player_light_radius
+    light_y = player.rect.centery - player_light_radius
+
+    light_mask.blit(player_light_surf, (light_x, light_y), special_flags=pygame.BLEND_RGBA_ADD)
+    screen.blit(light_mask, (0, 0), special_flags=pygame.BLEND_RGB_MULT)
+
+    health_text = hud_font.render(f"Health: {player_health}", True, (255, 100, 100))
+    sanity_text = hud_font.render(f"Sanity: {player_sanity}", True, (150, 150, 255))
+    location_text = hud_font.render(f"Location: {current_location}", True, (255, 255, 255))
+
+    screen.blit(health_text, (50, 1080 - 70))
+    screen.blit(sanity_text, (350, 1080 - 70))
+    screen.blit(location_text, (1500, 1080 - 70))
+
+    player_group.update(wall_sprites)
 
     pygame.display.flip()
     clock.tick(60)
