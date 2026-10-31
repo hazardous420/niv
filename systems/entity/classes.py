@@ -3,24 +3,30 @@ import systems.assets.assets as assets
 from systems.globals.constants import DEFAULT_SPRITE_SCALE
 import enum
 import random
+from systems.sounds.player_sounds import footstep_sound
 
 class Rotation(enum.Enum):
     NONE = 0
     RANDOM = 1
 
+unrot_table = ['6', '7', '8', '9', 'a', 'b', 'c', '2', 6, 7, 8, 9, 2]
+
 class Tile(pygame.sprite.Sprite):
     def __init__(self, tile_type, x, y, image):
         super().__init__()
         self.tile_type = tile_type
-        rotation = Rotation.NONE if tile_type == 2 or tile_type == 3 else Rotation.RANDOM
-  
-        if rotation == Rotation.RANDOM:
-            angle = random.choice([0, 90, 180, 270])
+        orientation = 0
+        if tile_type in unrot_table or str(tile_type) in unrot_table:
+            self.rotation = Rotation.NONE
+            orientation = 0
         else:
-            angle = Rotation.NONE.value
+            self.rotation = Rotation.RANDOM
+            orientation = random.choice([0, 90, 180, 270])   
 
-        self.image = pygame.transform.rotate(image, angle)
-        self.rect = self.image.get_rect(topleft=(x * DEFAULT_SPRITE_SCALE[0], y * DEFAULT_SPRITE_SCALE[1]))
+        self.image = pygame.transform.rotate(image, orientation)
+        print(f"Tile Type: {tile_type}, Orientation: {orientation}")
+        
+        self.rect = self.image.get_rect(topleft=(x * 32, y * 32))
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, sprite_sheet_dict, *groups):
@@ -30,7 +36,8 @@ class Player(pygame.sprite.Sprite):
         self.direction = 'down'
         self.frame_index = 0
         self.is_moving = False
-        
+
+        self.prev_int_frame = 0
         self.animation_speed = 0.15 
 
         self.image = pygame.transform.scale(self.animations[self.direction][self.frame_index], DEFAULT_SPRITE_SCALE)
@@ -78,13 +85,22 @@ class Player(pygame.sprite.Sprite):
         self.frame_index += self.animation_speed
         if self.frame_index >= len(self.animations[anim_key]):
             self.frame_index = 0
+        
+        current_int_frame = int(self.frame_index)
+        current_frame = self.animations[anim_key][int(self.frame_index)]
+        self.image = pygame.transform.scale(current_frame, DEFAULT_SPRITE_SCALE)
 
-        current_frame = self.animations[anim_key][int(self.frame_index)]
-        self.image = pygame.transform.scale(current_frame, DEFAULT_SPRITE_SCALE)
-            
-        current_frame = self.animations[anim_key][int(self.frame_index)]
-        self.image = pygame.transform.scale(current_frame, DEFAULT_SPRITE_SCALE)
+    def handle_sounds(self):
+        if self.is_moving:
+            current_int_frame = int(self.frame_index)
+
+            if current_int_frame != self.prev_int_frame:
+                if current_int_frame in (1, 3):
+                    footstep_sound.play()
+                self.prev_int_frame = current_int_frame
 
     def update(self, wall_sprites):
         self.handle_input(wall_sprites)
         self.update_animation()
+        self.handle_sounds()
+    

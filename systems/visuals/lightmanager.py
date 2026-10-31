@@ -2,7 +2,7 @@ import pygame
 from systems.visuals.light import AmbientLight, create_light_surf
 
 class LightManager:
-    def __init__(self, start_time: AmbientLight = AmbientLight.NIGHT):
+    def __init__(self, start_time: AmbientLight = AmbientLight.DUSK):
         self.light_mask = pygame.Surface((1920, 1080))
 
         self.current_time = start_time

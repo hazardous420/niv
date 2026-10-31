@@ -40,6 +40,22 @@ sprites: dict[str, Sprite] = {
 
     "BrickWall": Sprite("images/tiles/BrickWall.png", "BrickWall"),
     "WoodPlanks": Sprite("images/tiles/WoodPlanks.png", "WoodPlanks"),
+
+    "Dirt": Sprite("images/tiles/Dirt.png", "Dirt"),
+    "Grass": Sprite("images/tiles/Grass.png", "Grass"),
+
+    "TreeBL": Sprite("images/tiles/TreeBL.png", "TreeBL"),
+    "TreeBR": Sprite("images/tiles/TreeBR.png", "TreeBR"),
+    "TreeBM": Sprite("images/tiles/TreeBM.png", "TreeBM"),
+
+    "TreeTL": Sprite("images/tiles/TreeTL.png", "TreeTL"),
+    "TreeTR": Sprite("images/tiles/TreeTR.png", "TreeTR"),
+    "TreeTM": Sprite("images/tiles/TreeTM.png", "TreeTM"),
+
+    "Trunk": Sprite("images/tiles/Trunk.png", "Trunk"),
+
+    # Items
+    "RelicaBelt": Sprite("images/items/BeltOfRelica.png", "RelicaBelt"),
 }
 
 def load_assetmanager(assetmanager: AssetManager) -> None:

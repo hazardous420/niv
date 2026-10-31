@@ -8,8 +8,6 @@ class AmbientLight(Enum):
     NIGHT = (30, 30, 50)
     PITCH_BLACK = (5, 5, 5)
 
-
-
 def create_light_surf(radius, color=(255, 255, 255)):
     light_surf = pygame.Surface((radius * 2, radius * 2))
     light_surf.fill((0, 0, 0)) 
