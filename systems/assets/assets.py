@@ -56,6 +56,10 @@ sprites: dict[str, Sprite] = {
 
     # Items
     "RelicaBelt": Sprite("images/items/BeltOfRelica.png", "RelicaBelt"),
+    "TrustySword": Sprite("images/items/TrustySword.png", "TrustySword"),
+    "GoldPile": Sprite("images/items/CoinPile.png", "GoldPile"),
+    "GoldCoin": Sprite("images/items/GoldCoin.png", "GoldCoin"),
+    "GoldBag": Sprite("images/items/GoldBag.png", "GoldBag"),
 }
 
 def load_assetmanager(assetmanager: AssetManager) -> None:

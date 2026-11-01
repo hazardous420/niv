@@ -3,7 +3,7 @@ import systems.assets.assets as assets
 from systems.globals.constants import DEFAULT_SPRITE_SCALE
 import enum
 import random
-from systems.sounds.player_sounds import footstep_sound
+from systems.sounds.player_sounds import footstep_sound, pickup_item_sound, pickup_gold_sound
 
 class Rotation(enum.Enum):
     NONE = 0
@@ -11,7 +11,15 @@ class Rotation(enum.Enum):
 
 unrot_table = ['6', '7', '8', '9', 'a', 'b', 'c', '2', 6, 7, 8, 9, 2]
 
-
+class Item(pygame.sprite.Sprite):
+    def __init__(self, item_id, col, row, image):
+        super().__init__()
+        self.item_id = item_id
+        self.image = image
+        self.rect = self.image.get_rect()
+        
+        self.rect.x = col * 32
+        self.rect.y = row * 32
 
 class Tile(pygame.sprite.Sprite):
     def __init__(self, tile_type, x, y, image):
@@ -46,7 +54,10 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=(x, y))
         self.speed = 2
 
-    def handle_input(self, wall_sprites):
+        self.inventory = []
+        self.gold = 0
+
+    def handle_input(self, wall_sprites, item_group):
         keys = pygame.key.get_pressed()
         self.is_moving = False
         dx, dy = 0, 0
@@ -56,6 +67,23 @@ class Player(pygame.sprite.Sprite):
         else:
             self.speed = 2
             self.animation_speed = 0.15
+        if keys[pygame.K_g]:
+            picked_up_items = pygame.sprite.spritecollide(self, item_group, True)
+            for item in picked_up_items:
+                print(f"Picked up: {item.item_id}")
+                self.inventory.append(item.item_id)
+                if item.item_id == "GoldPile":
+                    self.gold += 20
+                    pickup_gold_sound.play()
+                elif item.item_id == "GoldCoin":
+                    self.gold += 1
+                    pickup_gold_sound.play()
+                elif item.item_id == "GoldBag":
+                    self.gold += 50
+                    pickup_gold_sound.play()
+                else:
+                    pickup_item_sound.play()
+
         if keys[pygame.K_LEFT]:
             dx = -self.speed
             self.direction = 'left'
@@ -101,8 +129,8 @@ class Player(pygame.sprite.Sprite):
                     footstep_sound.play()
                 self.prev_int_frame = current_int_frame
 
-    def update(self, wall_sprites):
-        self.handle_input(wall_sprites)
+    def update(self, wall_sprites, item_group):
+        self.handle_input(wall_sprites, item_group)
         self.update_animation()
         self.handle_sounds()
     

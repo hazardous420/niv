@@ -49,8 +49,10 @@ current_level_file = "CITY_START.rdl"
 current_location = ""
 level_connections = {}
 
+item_group = pygame.sprite.Group()
 current_location, level_connections, grid_l1, grid_l2 = level_parser.load_level_data(
-    os.path.join("levels", current_level_file)
+    os.path.join("levels", current_level_file),
+    item_group
 )
 
 layer1_sprites = pygame.sprite.Group()
@@ -70,10 +72,14 @@ player_frames = {
 }
 
 player_group = pygame.sprite.Group()
-player = Player(400, 400, player_frames, player_group)
+player = Player(900, 500, player_frames, player_group)
 
 player_health = 100
 player_sanity = 85
+
+GoldCoinSprite = sprites["GoldCoin"].texture
+GoldCoinSprite = pygame.transform.scale(GoldCoinSprite, (32, 32))
+GoldCoinSpriteRect = GoldCoinSprite.get_rect(bottomright=(1900, 1040))
 
 RelicaBeltSprite = sprites["RelicaBelt"].texture
 RelicaBeltSpriteRect = RelicaBeltSprite.get_rect(midbottom=(1800 /2, 990))
@@ -87,15 +93,24 @@ def create_crt_overlay(width: int, height: int, line_spacing: int = 4, opacity: 
         pygame.draw.line(crt_surface, scanline_color, (0, y), (width, y), 1)
         
     return crt_surface
+
 crt_overlay = create_crt_overlay(1920, 1080, line_spacing=4, opacity=255)
 
 def load_level(filename):
-    global current_location, level_connections, layer1_sprites, layer2_sprites, wall_sprites
-    
+    global current_location, level_connections
+    global layer1_sprites, layer2_sprites, wall_sprites
+    global grid_l1, grid_l2, item_group
+
     filepath = os.path.join("levels", filename)
-    current_location, level_connections, grid_l1, grid_l2 = level_parser.load_level_data(filepath)
-    
-    layer1_sprites, layer2_sprites, wall_sprites = level_parser.create_tile_sprites(grid_l1, grid_l2)
+    item_group.empty()
+
+    current_location, level_connections, grid_l1, grid_l2 = level_parser.load_level_data(
+        filepath,
+        item_group
+    )
+    layer1_sprites, layer2_sprites, wall_sprites = level_parser.create_tile_sprites(
+        grid_l1, grid_l2
+    )
 
 def handle_level_swap():
     PLAYABLE_WIDTH = 1920
@@ -119,7 +134,6 @@ def handle_level_swap():
         player.rect.bottom = 0
 
 load_level(current_level_file)
-
 start_bg_music()
 
 while running:
@@ -129,7 +143,8 @@ while running:
     handle_level_swap()
 
     screen.fill(BACKGROUND_COLOR)
-    layer1_sprites.draw(screen)  
+    layer1_sprites.draw(screen)
+    item_group.draw(screen)  
     player_group.draw(screen)    
     layer2_sprites.draw(screen)
 
@@ -146,14 +161,17 @@ while running:
     health_text = hud_font.render(f"Health: {player_health}", True, (255, 100, 100))
     sanity_text = hud_font.render(f"Sanity: {player_sanity}", True, (150, 150, 255))
     location_text = hud_font.render(f"Room: {current_location}", True, (255, 255, 255))
+    gold_text = hud_font.render(f"{player.gold}", True, (255, 215, 0))
     
     screen.blit(RelicaBeltSprite, RelicaBeltSpriteRect)
     screen.blit(health_text, (50, 1080 - 70))
     screen.blit(sanity_text, (350, 1080 - 70))
     screen.blit(location_text, (1500, 1080 - 70))
+    screen.blit(GoldCoinSprite, GoldCoinSpriteRect)
+    screen.blit(gold_text, (GoldCoinSpriteRect.left - gold_text.get_width() - 10, 1012))
     screen.blit(crt_overlay, (0, 0))
 
-    player_group.update(wall_sprites)
+    player_group.update(wall_sprites, item_group)
 
     pygame.display.flip()
     clock.tick(60)
