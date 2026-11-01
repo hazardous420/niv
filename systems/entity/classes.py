@@ -1,9 +1,11 @@
 import pygame
-import systems.assets.assets as assets
 from systems.globals.constants import DEFAULT_SPRITE_SCALE
 import enum
 import random
+from systems.sounds.audio_effects import play_sound
 from systems.sounds.player_sounds import footstep_sound, pickup_item_sound, pickup_gold_sound
+from systems.entity.entity import Entity
+from systems.visuals.crt import create_crt_overlay
 
 class Rotation(enum.Enum):
     NONE = 0
@@ -38,99 +40,119 @@ class Tile(pygame.sprite.Sprite):
         
         self.rect = self.image.get_rect(topleft=(x * 32, y * 32))
 
-class Player(pygame.sprite.Sprite):
+class Player(Entity):
     def __init__(self, x, y, sprite_sheet_dict, *groups):
-        super().__init__(*groups)
-        self.animations = sprite_sheet_dict
-        
-        self.direction = 'down'
-        self.frame_index = 0
-        self.is_moving = False
-
-        self.prev_int_frame = 0
-        self.animation_speed = 0.15 
-
-        self.image = pygame.transform.scale(self.animations[self.direction][self.frame_index], DEFAULT_SPRITE_SCALE)
-        self.rect = self.image.get_rect(topleft=(x, y))
-        self.speed = 2
+        super().__init__(
+            x,
+            y,
+            sprite_sheet_dict,
+            groups=groups,
+            health=20,
+            speed=2,
+            animation_speed=0.15
+        )
 
         self.inventory = []
         self.gold = 0
+
+        self.sanity = 100
+        self.sanity_ratio = 0
+        self.crt_thickness = 1
+        self.crt_opacity = 255
+        self.crt_spacing = 4
 
     def handle_input(self, wall_sprites, item_group):
         keys = pygame.key.get_pressed()
         self.is_moving = False
         dx, dy = 0, 0
+
         if keys[pygame.K_LSHIFT]:
             self.speed = 3
             self.animation_speed = 0.25
         else:
             self.speed = 2
             self.animation_speed = 0.15
+
         if keys[pygame.K_g]:
-            picked_up_items = pygame.sprite.spritecollide(self, item_group, True)
+            picked_up_items = pygame.sprite.spritecollide(
+                self, item_group, True
+            )
             for item in picked_up_items:
-                print(f"Picked up: {item.item_id}")
+                print(f"{item.item_id} get")
                 self.inventory.append(item.item_id)
                 if item.item_id == "GoldPile":
                     self.gold += 20
-                    pickup_gold_sound.play()
+                    play_sound(pickup_gold_sound, self.sanity)
                 elif item.item_id == "GoldCoin":
                     self.gold += 1
-                    pickup_gold_sound.play()
+                    play_sound(pickup_gold_sound, self.sanity)
                 elif item.item_id == "GoldBag":
                     self.gold += 50
-                    pickup_gold_sound.play()
+                    play_sound(pickup_gold_sound, self.sanity)
                 else:
-                    pickup_item_sound.play()
+                    play_sound(pickup_item_sound, self.sanity)
 
         if keys[pygame.K_LEFT]:
             dx = -self.speed
-            self.direction = 'left'
+            self.direction = "left"
             self.is_moving = True
         elif keys[pygame.K_RIGHT]:
             dx = self.speed
-            self.direction = 'right'
+            self.direction = "right"
             self.is_moving = True
         elif keys[pygame.K_UP]:
             dy = -self.speed
-            self.direction = 'up'
+            self.direction = "up"
             self.is_moving = True
         elif keys[pygame.K_DOWN]:
             dy = self.speed
-            self.direction = 'down'
+            self.direction = "down"
             self.is_moving = True
-
         if self.is_moving:
-            next_rect = self.rect.move(dx, dy)
-            next_rect.inflate_ip(-8, -12)
-            
-            if not any(tile.rect.colliderect(next_rect) for tile in wall_sprites):
-                self.rect.x += dx
-                self.rect.y += dy
+            self.move(dx, dy, wall_sprites)
 
-    def update_animation(self): #idle based on dir
-        anim_key = self.direction if self.is_moving else f"idle_{self.direction}"
+        if keys[pygame.K_p]:
+            self.update_sanity(-1)
 
-        self.frame_index += self.animation_speed
-        if self.frame_index >= len(self.animations[anim_key]):
-            self.frame_index = 0
-        
-        current_int_frame = int(self.frame_index)
-        current_frame = self.animations[anim_key][int(self.frame_index)]
-        self.image = pygame.transform.scale(current_frame, DEFAULT_SPRITE_SCALE)
-    
     def handle_sounds(self):
         if self.is_moving:
             current_int_frame = int(self.frame_index)
-
             if current_int_frame != self.prev_int_frame:
                 if current_int_frame in (1, 3):
-                    footstep_sound.play()
+                    play_sound(footstep_sound, self.sanity)
                 self.prev_int_frame = current_int_frame
+
+    def update_sanity(self, amount):
+        self.sanity = max(0, min(self.sanity + amount, 100))
+
+        self.sanity_ratio = 1 - (self.sanity / 100)
+
+        self.crt_thickness = 1 + int(self.sanity_ratio * 2)
+        self.crt_opacity = 255
+        self.crt_spacing = 4
+
+    def update_crt(self):
+        ratio = 1 - (self.sanity / 100)
+
+        thickness = 1 + round(ratio * 3)
+        spacing = 4 + round(ratio * 2)
+
+        settings = (thickness, spacing)
+
+        if settings != getattr(self, "crt_settings", None):
+            self.crt_settings = settings
+
+            self.crt_overlay = create_crt_overlay(
+                1920,
+                1080,
+                line_spacing=spacing,
+                thickness=thickness,
+                opacity=255
+            )
 
     def update(self, wall_sprites, item_group):
         self.handle_input(wall_sprites, item_group)
         self.update_animation()
         self.handle_sounds()
-    
+        self.update_crt()
+        self.update_sanity(0)

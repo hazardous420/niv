@@ -1,10 +1,10 @@
-import pygame
 import os
+from systems.sounds.audio_effects import DynamicMusic
 
-pygame.init()
-pygame.mixer.init()
+music_player = DynamicMusic(
+    os.path.join("assets/music", "Distopia.wav"),
+    volume=0.2
+)
 
 def start_bg_music():
-    pygame.mixer.music.load(os.path.join("assets/music", "Distopia.wav"))
-    pygame.mixer.music.set_volume(0.2)
-    pygame.mixer.music.play(-1)
+    music_player.play()
