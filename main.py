@@ -1,5 +1,12 @@
 ## PYGAME
 import pygame
+import sys
+import ctypes
+
+if sys.platform == 'win32':
+    myappid = 'pattonlow.python.relicaofdriscoll' 
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+
 pygame.init()
 screen: pygame.Surface = pygame.display.set_mode((1920,1080), pygame.FULLSCREEN)
 
@@ -17,9 +24,16 @@ from systems.visuals.light import AmbientLight, create_light_surf
 import systems.world.level_parser as level_parser
 from systems.entity.classes import Player, Tile
 from systems.globals.constants import BACKGROUND_COLOR
+from systems.sounds.music import start_bg_music
 
 pygame.font.init()
 hud_font = pygame.font.Font("assets/fonts/alagard.ttf", 30)
+
+original_icon = pygame.image.load("Icon.png")
+scaled_icon = pygame.transform.scale(original_icon, (144, 144))
+
+pygame.display.set_caption("The Relica of Driscoll")
+pygame.display.set_icon(scaled_icon)
 
 clock: pygame.time.Clock = pygame.time.Clock()
 running: bool = True
@@ -31,7 +45,7 @@ light_manager.add_light(200)
 asset_manager: AssetManager = AssetManager()
 load_assetmanager(asset_manager)
 
-current_level_file = "CITY_START.txt"
+current_level_file = "CITY_START.rdl"
 current_location = ""
 level_connections = {}
 
@@ -89,22 +103,24 @@ def handle_level_swap():
 
         #west
     if player.rect.right < 0 and level_connections.get('west'):
-        load_level(f"{level_connections['west']}.txt")
+        load_level(f"{level_connections['west']}.rdl")
         player.rect.left = PLAYABLE_WIDTH - player.rect.width
         #east
     elif player.rect.left > PLAYABLE_WIDTH and level_connections.get('east'):
-        load_level(f"{level_connections['east']}.txt")
+        load_level(f"{level_connections['east']}.rdl")
         player.rect.right = 0
         #north
     elif player.rect.bottom < 0 and level_connections.get('north'):
-        load_level(f"{level_connections['north']}.txt")
+        load_level(f"{level_connections['north']}.rdl")
         player.rect.top = PLAYABLE_HEIGHT - player.rect.height
         #south
     elif player.rect.top > PLAYABLE_HEIGHT and level_connections.get('south'):
-        load_level(f"{level_connections['south']}.txt")
+        load_level(f"{level_connections['south']}.rdl")
         player.rect.bottom = 0
 
 load_level(current_level_file)
+
+start_bg_music()
 
 while running:
     for event in pygame.event.get():

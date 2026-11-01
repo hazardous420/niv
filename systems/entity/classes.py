@@ -11,6 +11,8 @@ class Rotation(enum.Enum):
 
 unrot_table = ['6', '7', '8', '9', 'a', 'b', 'c', '2', 6, 7, 8, 9, 2]
 
+
+
 class Tile(pygame.sprite.Sprite):
     def __init__(self, tile_type, x, y, image):
         super().__init__()
@@ -89,7 +91,7 @@ class Player(pygame.sprite.Sprite):
         current_int_frame = int(self.frame_index)
         current_frame = self.animations[anim_key][int(self.frame_index)]
         self.image = pygame.transform.scale(current_frame, DEFAULT_SPRITE_SCALE)
-
+    
     def handle_sounds(self):
         if self.is_moving:
             current_int_frame = int(self.frame_index)
